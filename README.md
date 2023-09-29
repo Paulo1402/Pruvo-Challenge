@@ -1,69 +1,18 @@
-# base
+# Páginas
 
-## Project setup
+* Páginas com (login required) devem redirecionar para /login caso usuário não esteja autenticado
 
-```
-# yarn
-yarn
+## / (login required) 
+Listar provas do usuário
 
-# npm
-npm install
+## /login
+Autenticar usuário
 
-# pnpm
-pnpm install
+## /novo (login required)
+Criar nova prova
 
-# bun
-bun install
-```
+## /atualizar/:id (login required)
+Atualizar prova
 
-### Compiles and hot-reloads for development
-
-```
-# yarn
-yarn dev
-
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# bun
-pnpm run dev
-```
-
-### Compiles and minifies for production
-
-```
-# yarn
-yarn build
-
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# bun
-pnpm run build
-```
-
-### Lints and fixes files
-
-```
-# yarn
-yarn lint
-
-# npm
-npm run lint
-
-# pnpm
-pnpm lint
-
-# bun
-pnpm run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://vitejs.dev/config/).
+## /prova/:id (login required)
+Ver prova
