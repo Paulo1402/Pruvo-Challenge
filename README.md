@@ -16,3 +16,15 @@ Atualizar prova
 
 ## /prova/:id (login required)
 Ver prova
+
+# Firestore
+
+## Estrutura
+- users (collection)
+  - [USER_ID] (document)
+    - tests (subcollection)
+      - [TEST_ID] (document)
+        - name: string
+        - content: string
+        - createdAt: timestamp
+        - updatedAt: timestamp
