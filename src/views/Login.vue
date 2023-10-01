@@ -1,6 +1,6 @@
 <template>
-  <Login v-if="showSignUp" @sign-up="toggleForm"/>
-  <SignUp v-else @login="toggleForm"/>
+  <SignUp v-show="showSignUp" @toggle="toggleForm"/>
+  <Login v-show="!showSignUp" @toggle="toggleForm"/>
 
 </template>
 

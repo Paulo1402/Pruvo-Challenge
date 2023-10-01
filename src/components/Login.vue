@@ -3,6 +3,10 @@
     <v-card class="mx-auto mt-4 px-6 py-8" max-width="400">
       <v-card-title class="pb-4">LOGIN</v-card-title>
 
+      <v-alert v-model="showError" closable type="error" text="Algo deu errado durante o login!">
+
+      </v-alert>
+
       <v-form v-model="form" @submit.prevent="handleSubmit">
         <v-text-field
           class="mb-2"
@@ -12,7 +16,7 @@
           type="email"
           :rules="[validateEmail]"
         ></v-text-field>
-        
+
         <v-text-field
           class="mb-2"
           v-model="password"
@@ -30,13 +34,14 @@
           size="large"
           color="success"
           type="submit"
-          :disabled="!form"
+          :disabled="!form || loading"
+          :loading="loading"
           >Entrar</v-btn
         >
       </v-form>
 
       <v-card-text class="text-center"
-        ><v-btn variant="plain" :ripple="false" @click="$emit('signUp')"
+        ><v-btn variant="plain" :ripple="false" @click="$emit('toggle')"
           >Cadastrar agora</v-btn
         ></v-card-text
       >
@@ -48,22 +53,27 @@
 import { ref } from "vue";
 import router from "@/router";
 
-import { signIn } from "@/services/firebase";
+import { Auth } from "@/services/firebase";
 
+const showError = ref(false)
+const loading = ref(false)
 const email = ref("");
 const password = ref("");
 const showPassword = ref(false);
 const form = ref(false);
 
 async function handleSubmit() {
-  const user = await signIn(email.value, password.value);
+  loading.value = true
 
-  if (user) {
+  const userLoggedIn = await Auth.login(email.value, password.value);
+
+  loading.value = false
+
+  if (userLoggedIn) {
     await router.push("/");
-    return;
+  } else {
+    showError.value = true
   }
-
-  alert("Usuário inválido");
 }
 
 function validatePassword(password: string) {

@@ -6,6 +6,13 @@
       <v-form v-model="form" @submit.prevent="handleSubmit">
         <v-text-field
           class="mb-2"
+          v-model="name"
+          label="Nome"
+          clearable
+        ></v-text-field>
+
+        <v-text-field
+          class="mb-2"
           v-model="email"
           label="E-mail"
           clearable
@@ -45,7 +52,7 @@
       </v-form>
 
       <v-card-text class="text-center"
-        ><v-btn variant="plain" :ripple="false" @click="$emit('login')"
+        ><v-btn variant="plain" :ripple="false" @click="$emit('toggle')"
           >Já tem uma conta? Faça login!</v-btn
         ></v-card-text
       >
@@ -56,22 +63,26 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import router from "@/router";
-import { signIn } from "@/services/firebase";
+import { Auth } from "@/services/firebase";
 
+const name = ref("");
 const email = ref("");
 const password = ref("");
 const showPassword = ref(false);
 const form = ref(false);
 
 async function handleSubmit() {
-  const user = await signIn(email.value, password.value);
+  const userCreated = await Auth.signUp(
+    name.value,
+    email.value,
+    password.value
+  );
 
-  if (user) {
+  if (userCreated) {
     await router.push("/");
-    return;
+  } else {
+    alert("Algo deu errado!");
   }
-
-  alert("Usuário inválido");
 }
 
 function validatePassword(password: string) {
