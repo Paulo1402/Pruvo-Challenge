@@ -18,6 +18,12 @@ const routes = [
         name: "login",
         component: () => import("@/views/Login.vue"),
       },
+      {
+        path: 'new',
+        name: 'new',
+        component: () => import("@/views/New.vue"),
+        meta: { requiresAuth: true },
+      }
     ],
   },
 ];
@@ -27,7 +33,6 @@ const router = createRouter({
   routes,
 });
 
-// Add a global navigation guard to check authentication status
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     const isAuthenticated = await Auth.isAuthenticated();
