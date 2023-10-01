@@ -19,11 +19,22 @@ const routes = [
         component: () => import("@/views/Login.vue"),
       },
       {
-        path: 'new',
-        name: 'new',
+        path: "new",
+        name: "new",
         component: () => import("@/views/New.vue"),
         meta: { requiresAuth: true },
-      }
+      },
+      {
+        path: "test/:id",
+        name: "test",
+        component: () => import("@/views/Test.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/:pathMatch(.*)*",
+        name: "NotFound",
+        component: () => import("@/views/NotFound.vue"),
+      },
     ],
   },
 ];
