@@ -6,7 +6,14 @@ import {
   signOut,
   updateProfile,
   User,
+  onAuthStateChanged,
 } from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -75,13 +82,58 @@ class Auth {
   }
 
   static async isAuthenticated(): Promise<boolean> {
-    const auth = getAuth(app);
-    const user = auth.currentUser;
-
+    const user = await this.getCurrentUser()
     return !!user;
+  }
+
+  static async getCurrentUser(): Promise<User | null> {
+    const auth = getAuth(app);
+
+    const user = await new Promise<User | null>((resolve) => {
+      onAuthStateChanged(auth, (user) => {
+        resolve(user)
+      })
+    })
+
+    return user
   }
 }
 
-class Database {}
+export interface ITest {
+  id: string
+  name: string
+  content: string
+  createdAt: string
+  updatedAt: string
+}
+
+class Database {
+  static async getTests(): Promise<ITest[]> {
+    const db = getFirestore(app);
+    const user = await Auth.getCurrentUser()
+
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      if (user) {
+        const userId = user.uid;
+        const testsCollection = collection(db, `users/${userId}/tests`);
+        const testsQuery = query(testsCollection);
+
+        const querySnapshot = await getDocs(testsQuery);
+
+        const tests: ITest[] = [];
+
+        querySnapshot.forEach((doc) => {
+          const test = Object.assign({ id: doc.id }, doc.data()) as ITest
+          tests.push(test);
+        });
+
+        resolve(tests);
+      } else {
+        reject(new Error('User is not authenticated.'));
+      }
+    })
+  }
+}
 
 export { Auth, Database };
