@@ -2,9 +2,9 @@
   <v-navigation-drawer v-if="isAuthenticated" v-model="isDrawerOpen">
     <v-list>
       <v-list-subheader>Menu</v-list-subheader>
-      <v-list-item prepend-icon="mdi-home">Home</v-list-item>
-      <v-list-item prepend-icon="mdi-home">Provas</v-list-item>
-      <v-list-item prepend-icon="mdi-home">Nova Prova</v-list-item>
+      <v-list-item prepend-icon="mdi-home" to="/">Home</v-list-item>
+      <v-list-item prepend-icon="mdi-list-box" to="/">Provas</v-list-item>
+      <v-list-item prepend-icon="mdi-new-box" to="/new">Nova Prova</v-list-item>
     </v-list>
   </v-navigation-drawer>
 

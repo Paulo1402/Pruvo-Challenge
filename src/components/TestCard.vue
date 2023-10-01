@@ -11,8 +11,7 @@
     <v-card-actions>
       <v-spacer></v-spacer>
 
-      <v-btn variant="tonal">Ver</v-btn>
-      <v-btn variant="tonal">Editar</v-btn>
+      <v-btn variant="tonal" :to="'test/' + id">Editar</v-btn>
       <v-btn variant="tonal" color="red" @click="handleDelete">Deletar</v-btn>
     </v-card-actions>
   </v-card>

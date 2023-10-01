@@ -3,8 +3,12 @@
     <v-card class="mx-auto mt-4 px-6 py-8" max-width="400">
       <v-card-title class="pb-4">LOGIN</v-card-title>
 
-      <v-alert v-model="showError" closable type="error" text="Algo deu errado durante o login!">
-
+      <v-alert
+        v-model="showError"
+        closable
+        type="error"
+        text="Algo deu errado durante o login!"
+      >
       </v-alert>
 
       <v-form v-model="form" @submit.prevent="handleSubmit">
@@ -55,24 +59,30 @@ import router from "@/router";
 
 import { Auth } from "@/services/firebase";
 
-const showError = ref(false)
-const loading = ref(false)
+const showError = ref(false);
+const loading = ref(false);
 const email = ref("");
 const password = ref("");
 const showPassword = ref(false);
 const form = ref(false);
 
 async function handleSubmit() {
-  loading.value = true
+  loading.value = true;
 
   const userLoggedIn = await Auth.login(email.value, password.value);
 
-  loading.value = false
+  loading.value = false;
 
   if (userLoggedIn) {
-    await router.push("/");
+    const currentRoute = router.currentRoute.value;
+
+    if (currentRoute.query.redirect) {
+      await router.push({ path: currentRoute.query.redirect as string });
+    } else {
+      await router.push("/");
+    }
   } else {
-    showError.value = true
+    showError.value = true;
   }
 }
 
