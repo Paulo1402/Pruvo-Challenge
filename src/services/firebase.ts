@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -13,6 +14,8 @@ import {
   collection,
   getDocs,
   query,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -82,7 +85,7 @@ class Auth {
   }
 
   static async isAuthenticated(): Promise<boolean> {
-    const user = await this.getCurrentUser()
+    const user = await this.getCurrentUser();
     return !!user;
   }
 
@@ -91,28 +94,27 @@ class Auth {
 
     const user = await new Promise<User | null>((resolve) => {
       onAuthStateChanged(auth, (user) => {
-        resolve(user)
-      })
-    })
+        resolve(user);
+      });
+    });
 
-    return user
+    return user;
   }
 }
 
 export interface ITest {
-  id: string
-  name: string
-  content: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  name: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 class Database {
   static async getTests(): Promise<ITest[]> {
     const db = getFirestore(app);
-    const user = await Auth.getCurrentUser()
+    const user = await Auth.getCurrentUser();
 
-    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       if (user) {
         const userId = user.uid;
@@ -124,15 +126,36 @@ class Database {
         const tests: ITest[] = [];
 
         querySnapshot.forEach((doc) => {
-          const test = Object.assign({ id: doc.id }, doc.data()) as ITest
+          const test = Object.assign({ id: doc.id }, doc.data()) as ITest;
           tests.push(test);
         });
 
         resolve(tests);
       } else {
-        reject(new Error('User is not authenticated.'));
+        reject(new Error("User is not authenticated."));
       }
-    })
+    });
+  }
+
+  static async addTest(name: string, content: string): Promise<string> {
+    const db = getFirestore(app);
+    const user = await Auth.getCurrentUser();
+
+    if (user) {
+      const userId = user.uid;
+      const testsCollection = collection(db, `users/${userId}/tests`);
+
+      const test = await addDoc(testsCollection, {
+        name,
+        content,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      return test.id
+    } else {
+      throw new Error("User is not authenticated.");
+    }
   }
 }
 
