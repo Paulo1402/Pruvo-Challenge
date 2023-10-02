@@ -1,12 +1,10 @@
 <template>
   <v-card width="400" class="mx-auto">
-    <div style="width: 100%; height: 50px" class="bg-orange"></div>
+    <div style="width: 100%; height: 50px" :class="'bg-' + color"></div>
 
     <v-card-title>{{  name  }}</v-card-title>
-
-    <v-card-text>
-      {{  content  }}
-    </v-card-text>
+    
+    <v-card-text>{{  content  }}</v-card-text>
 
     <v-card-actions>
       <v-spacer></v-spacer>
@@ -18,7 +16,9 @@
 </template>
 
 <script setup lang="ts">
-  const props = defineProps<{id: string, name: string, content: string}>()
+  import { Database } from '@/services/firebase';
+  
+  const props = defineProps<{id: string, name: string, content: string, color: string}>()
 
   function handleDelete() {
     console.log('id: ' + props.id)

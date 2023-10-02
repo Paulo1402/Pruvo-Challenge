@@ -1,15 +1,16 @@
 <template>
   <v-container class="text-center">
-    <div v-if="store.tests.length > 0">
+    <div v-if="tests.length > 0">
       <h1 class="mb-8">Provas</h1>
 
       <TestCard
-        v-for="(card, i) in store.tests"
+        v-for="(test, i) in tests"
         class="mb-8"
         :key="i"
-        :id="card.id"
-        :name="card.name"
-        :content="card.content"
+        :id="test.id"
+        :name="test.name"
+        :content="test.content"
+        :color="getColor(i)"
       />
     </div>
     <div v-else>
@@ -22,8 +23,22 @@
 </template>
 
 <script lang="ts" setup>
+import { storeToRefs } from 'pinia'
 import TestCard from "@/components/TestCard.vue";
 import { useTestsStore } from "@/stores/useTests";
 
 const store = useTestsStore();
+const { tests } = storeToRefs(store);
+
+function getColor(index: number): string {
+  const colors = [
+    'orange',
+    'blue',
+    'red',
+    'green',
+    'yellow'
+  ]
+
+  return colors[index % colors.length]
+  }
 </script>
