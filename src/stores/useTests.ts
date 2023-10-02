@@ -1,16 +1,16 @@
-import { ITest } from '@/models/test'
+import { Test } from '@/models/test'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 
 export const useTestsStore = defineStore('tests', () => {
-  const tests = ref<ITest[]>([])
+  const tests = ref<Test[]>([])
 
-  function update(newTests: ITest[]): void {
+  function update(newTests: Test[]): void {
     tests.value = newTests
   }
 
-  function getTest(id: string): ITest | undefined {
+  function getTest(id: string): Test | undefined {
     return tests.value.find(test => test.id === id)
   }
 

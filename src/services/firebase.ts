@@ -1,5 +1,5 @@
 /* eslint-disable no-async-promise-executor */
-import { ITest } from "@/models/test";
+import { Test } from "@/models/test";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -62,16 +62,9 @@ class Auth {
     return true;
   }
 
-  static async signOut(): Promise<boolean> {
+  static async signOut(): Promise<void> {
     const auth = getAuth(app);
-
-    try {
-      await signOut(auth);
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+    await signOut(auth);
   }
 
   static async login(email: string, password: string): Promise<boolean> {
@@ -108,7 +101,7 @@ class Auth {
 }
 
 class Database {
-  static async getTests(): Promise<ITest[]> {
+  static async getTests(): Promise<Test[]> {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
 
@@ -119,10 +112,10 @@ class Database {
         const testsQuery = query(testsCollection);
         const querySnapshot = await getDocs(testsQuery);
 
-        const tests: ITest[] = [];
+        const tests: Test[] = [];
 
         querySnapshot.forEach((doc) => {
-          const test = Object.assign({ id: doc.id }, doc.data()) as ITest;
+          const test = new Test(doc.id, doc.data());
           tests.push(test);
         });
 
@@ -133,7 +126,7 @@ class Database {
     });
   }
 
-  static async addTest(name: string, content: string): Promise<string> {
+  static async addTest(name: string, content: string): Promise<void> {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
 
@@ -141,14 +134,12 @@ class Database {
       const userId = user.uid;
       const testsCollection = collection(db, `users/${userId}/tests`);
 
-      const test = await addDoc(testsCollection, {
+      await addDoc(testsCollection, {
         name,
         content,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-
-      return test.id;
     } else {
       throw new Error("User is not authenticated.");
     }
@@ -194,7 +185,7 @@ class Database {
     }
   }
 
-  static async listenToTestsDoc(callback: (tests: ITest[]) => void) {
+  static async listenToTestsDoc(callback: (tests: Test[]) => void) {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
 
@@ -203,10 +194,11 @@ class Database {
       const testsCollection = collection(db, `users/${userId}/tests`);
 
       const unsubscribeTests = onSnapshot(testsCollection, (querySnapshot) => {
-        const tests: ITest[] = [];
+        const tests: Test[] = [];
 
         querySnapshot.forEach((doc) => {
-          const test = Object.assign({ id: doc.id }, doc.data()) as ITest;
+          const test = new Test(doc.id, doc.data());
+          console.log(test);
           tests.push(test);
         });
 
