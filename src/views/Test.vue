@@ -38,8 +38,8 @@
           >Deletar</v-btn
         >
 
-        <p>Criado em {{  }}</p>
-        <p>Atualizado em {{  }}</p>
+        <p>Criado em {{ test?.createdAt }}</p>
+        <p>Atualizado em {{ test?.updatedAt }}</p>
       </div>
     </v-form>
   </v-container>
@@ -50,6 +50,7 @@ import { ref } from "vue";
 import { useRoute } from "vue-router";
 import Editor from "@tinymce/tinymce-vue";
 import { Database } from "@/services/firebase";
+import { useTestsStore } from "@/stores/useTests";
 
 type EditorMap = {
   editorCommands: {
@@ -61,13 +62,17 @@ type EditorMap = {
   };
 };
 
+const route = useRoute();
+const testId = route.params.id as string;
+
+const store = useTestsStore();
+const test = store.getTest(testId);
+
 const loading = ref(false);
 const form = ref(false);
-const testName = ref("");
-const editorData = ref("");
+const testName = ref(test?.name);
+const editorData = ref(test?.content);
 const editorRef = ref<EditorMap>();
-
-
 
 const apiKey = import.meta.env.VITE_TINY_API_KEY;
 
@@ -80,15 +85,17 @@ function handleEditorInit(_: any, editor: EditorMap) {
 }
 
 async function handleSubmit() {
-  const route = useRoute();
-  const testId = route.params.id as string
-
   try {
     loading.value = true;
-    await Database.updateTest(testId);
+    await Database.updateTest(
+      testId,
+      testName.value as string,
+      editorData.value as string
+    );
     loading.value = false;
-  } catch {
-    console.log("Erro");
+  } catch (error) {
+    loading.value = false;
+    console.error(error);
   }
 }
 

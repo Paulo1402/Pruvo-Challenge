@@ -16,7 +16,11 @@ import {
   getDocs,
   query,
   addDoc,
+  setDoc,
   serverTimestamp,
+  doc,
+  deleteDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -113,7 +117,6 @@ class Database {
         const userId = user.uid;
         const testsCollection = collection(db, `users/${userId}/tests`);
         const testsQuery = query(testsCollection);
-
         const querySnapshot = await getDocs(testsQuery);
 
         const tests: ITest[] = [];
@@ -145,22 +148,75 @@ class Database {
         updatedAt: serverTimestamp(),
       });
 
-      return test.id
+      return test.id;
     } else {
       throw new Error("User is not authenticated.");
     }
   }
 
-  static async updateTest(id: string) {
+  static async updateTest(
+    id: string,
+    name: string,
+    content: string
+  ): Promise<void> {
+    const db = getFirestore(app);
+    const user = await Auth.getCurrentUser();
 
+    if (user) {
+      const userId = user.uid;
+      const testRef = doc(db, `users/${userId}/tests/${id}`);
+
+      await setDoc(
+        testRef,
+        {
+          name,
+          content,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+    } else {
+      throw new Error("User is not authenticated.");
+    }
   }
 
-  static async deleteTest(id: string) {
+  static async deleteTest(id: string): Promise<void> {
+    const db = getFirestore(app);
+    const user = await Auth.getCurrentUser();
 
+    if (user) {
+      const userId = user.uid;
+      const testRef = doc(db, `users/${userId}/tests/${id}`);
+
+      await deleteDoc(testRef);
+    } else {
+      throw new Error("User is not authenticated.");
+    }
   }
 
-  static async setupSnaphotObserver(callback: () => void) {
+  static async listenToTestsDoc(callback: (tests: ITest[]) => void) {
+    const db = getFirestore(app);
+    const user = await Auth.getCurrentUser();
 
+    if (user) {
+      const userId = user.uid;
+      const testsCollection = collection(db, `users/${userId}/tests`);
+
+      const unsubscribeTests = onSnapshot(testsCollection, (querySnapshot) => {
+        const tests: ITest[] = [];
+
+        querySnapshot.forEach((doc) => {
+          const test = Object.assign({ id: doc.id }, doc.data()) as ITest;
+          tests.push(test);
+        });
+
+        callback(tests);
+      });
+
+      return unsubscribeTests;
+    } else {
+      throw new Error("User is not authenticated.");
+    }
   }
 }
 
