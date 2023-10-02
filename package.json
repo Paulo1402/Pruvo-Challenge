@@ -12,6 +12,7 @@
     "@mdi/font": "7.0.96",
     "@tinymce/tinymce-vue": "^5.1.1",
     "core-js": "^3.29.0",
+    "dayjs": "^1.11.10",
     "firebase": "^10.4.0",
     "pinia": "^2.1.6",
     "roboto-fontface": "*",
