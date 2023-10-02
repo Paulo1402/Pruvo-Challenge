@@ -10,6 +10,10 @@ export const useTestsStore = defineStore('tests', () => {
     tests.value = newTests
   }
 
-  return { tests, update }
+  function getTest(id: string): ITest | undefined {
+    return tests.value.find(test => test.id === id)
+  }
+
+  return { tests, update, getTest }
 
 })
