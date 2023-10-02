@@ -43,23 +43,16 @@ class Auth {
     name: string,
     email: string,
     password: string
-  ): Promise<boolean> {
+  ): Promise<void> {
     const auth = getAuth(app);
 
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
-    ).catch((err) => {
-      console.error(err.code);
-      console.error(err.message);
-    });
-
-    if (!userCredential) return false;
+    );
 
     await this.updateUserName(userCredential.user, name);
-
-    return true;
   }
 
   static async signOut(): Promise<void> {
@@ -67,19 +60,9 @@ class Auth {
     await signOut(auth);
   }
 
-  static async login(email: string, password: string): Promise<boolean> {
+  static async login(email: string, password: string): Promise<void> {
     const auth = getAuth(app);
-
-    const userCredencial = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    ).catch((err) => {
-      console.error(err.code);
-      console.error(err.message);
-    });
-
-    return !!userCredencial;
+    await signInWithEmailAndPassword(auth, email, password);
   }
 
   static async isAuthenticated(): Promise<boolean> {
@@ -198,7 +181,6 @@ class Database {
 
         querySnapshot.forEach((doc) => {
           const test = new Test(doc.id, doc.data());
-          console.log(test);
           tests.push(test);
         });
 
