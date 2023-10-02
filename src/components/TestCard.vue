@@ -1,26 +1,28 @@
 <template>
   <v-card width="400" class="mx-auto">
-    <div style="width: 100%; height: 50px" :class="'bg-' + color"></div>
+    <div :class="['bg-color', 'bg-' + color]"></div>
 
     <v-card-title>{{  name  }}</v-card-title>
-    
-    <v-card-text>{{  content  }}</v-card-text>
+    <v-card-text>Atualizado em: {{  updatedAt  }}</v-card-text>
 
     <v-card-actions>
       <v-spacer></v-spacer>
 
       <v-btn variant="tonal" :to="'test/' + id">Editar</v-btn>
-      <v-btn variant="tonal" color="red" @click="handleDelete">Deletar</v-btn>
+      <DeleteButton :test-id="id" />
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
-  import { Database } from '@/services/firebase';
-  
-  const props = defineProps<{id: string, name: string, content: string, color: string}>()
+  import DeleteButton from '@/components/DeleteButton.vue'
 
-  function handleDelete() {
-    console.log('id: ' + props.id)
-  }
+  defineProps<{id: string, name: string, updatedAt: string, color: string}>()
 </script>
+
+<style>
+  .bg-color {
+    width: 100%;
+    height: 50px;
+  }
+</style>
