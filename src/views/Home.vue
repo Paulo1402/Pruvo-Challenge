@@ -9,7 +9,7 @@
         :key="i"
         :id="test.id"
         :name="test.name"
-        :content="test.content"
+        :updatedAt="test.updatedAt"
         :color="getColor(i)"
       />
     </div>

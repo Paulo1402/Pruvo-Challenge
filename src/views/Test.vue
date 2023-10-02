@@ -28,15 +28,7 @@
           >Salvar</v-btn
         >
 
-        <v-btn
-          :loading="loading"
-          :disabled="loading"
-          class="mt-4"
-          size="large"
-          color="red"
-          @click="handleSubmit"
-          >Deletar</v-btn
-        >
+        <DeleteButton :test-id="testId"/>
 
         <p>Criado em {{ test?.createdAt }}</p>
         <p>Atualizado em {{ test?.updatedAt }}</p>
@@ -51,6 +43,7 @@ import { useRoute } from "vue-router";
 import Editor from "@tinymce/tinymce-vue";
 import { Database } from "@/services/firebase";
 import { useTestsStore } from "@/stores/useTests";
+import DeleteButton from "@/components/DeleteButton.vue";
 
 type EditorMap = {
   editorCommands: {
@@ -85,18 +78,19 @@ function handleEditorInit(_: any, editor: EditorMap) {
 }
 
 async function handleSubmit() {
+  loading.value = true;
+
   try {
-    loading.value = true;
     await Database.updateTest(
       testId,
       testName.value as string,
       editorData.value as string
     );
-    loading.value = false;
   } catch (error) {
-    loading.value = false;
     console.error(error);
   }
+
+  loading.value = false;
 }
 
 function insertText(text: string) {
