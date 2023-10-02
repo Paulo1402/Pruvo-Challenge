@@ -2,7 +2,7 @@
   <v-container class="text-center d-flex justify-center">
     <v-form v-model="form" class="editor-container">
       <div class="editor-container">
-        <h1 class="mb-8">Nova prova</h1>
+        <h1 class="mb-8">Nova Prova</h1>
 
         <v-text-field
           v-model="testName"
@@ -19,7 +19,7 @@
         />
 
         <v-btn
-          :loading="!loading"
+          :loading="loading"
           :disabled="!form || !!!editorData || loading"
           class="mt-4"
           size="large"
