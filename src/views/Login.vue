@@ -1,18 +1,36 @@
 <template>
-  <SignUp v-show="showSignUp" @toggle="toggleForm"/>
-  <Login v-show="!showSignUp" @toggle="toggleForm"/>
-
+  <SignUpForm v-show="showSignUp" @toggle="toggleForm" @logged="handleLogged" />
+  <LoginForm v-show="!showSignUp" @toggle="toggleForm" @logged="handleLogged" />
 </template>
 
 <script setup lang="ts">
-  import { ref } from "vue";
+import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
-  import SignUp from "@/components/SignUp.vue";
-  import Login from "@/components/Login.vue";
+import SignUpForm from "@/components/SignUpForm.vue";
+import LoginForm from "@/components/LoginForm.vue";
 
-  const showSignUp = ref(false)
+import { Database } from "@/services/firebase";
+import { useTestsStore } from "@/stores/useTests";
 
-  function toggleForm() {
-    showSignUp.value = !showSignUp.value
+const router = useRouter();
+const route = useRoute();
+
+const store = useTestsStore();
+
+const showSignUp = ref(false);
+
+function toggleForm() {
+  showSignUp.value = !showSignUp.value;
+}
+
+async function handleLogged() {
+  await Database.listenToTestsDoc(store.update);
+
+  if (route.query.redirect) {
+    await router.push({ path: route.query.redirect as string });
+  } else {
+    await router.push("/");
   }
+}
 </script>
