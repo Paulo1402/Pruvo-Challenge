@@ -1,4 +1,5 @@
 /* eslint-disable no-async-promise-executor */
+import { ITest } from "@/models/test";
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
@@ -102,14 +103,6 @@ class Auth {
   }
 }
 
-export interface ITest {
-  id: string;
-  name: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 class Database {
   static async getTests(): Promise<ITest[]> {
     const db = getFirestore(app);
@@ -156,6 +149,18 @@ class Database {
     } else {
       throw new Error("User is not authenticated.");
     }
+  }
+
+  static async updateTest(id: string) {
+
+  }
+
+  static async deleteTest(id: string) {
+
+  }
+
+  static async setupSnaphotObserver(callback: () => void) {
+
   }
 }
 
