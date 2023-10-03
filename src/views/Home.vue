@@ -1,44 +1,55 @@
 <template>
   <v-container class="text-center">
-    <div v-if="tests.length > 0">
-      <h1 class="mb-8">Provas</h1>
+    <div v-if="store.isAuthenticated">
+      <h1 class="mb-8">Pruvo Challenge</h1>
+      <h2>{{ messageGreeting }}</h2>
 
-      <TestCard
-        v-for="(test, i) in tests"
-        class="mb-8"
-        :key="i"
-        :id="test.id"
-        :name="test.name"
-        :updatedAt="test.updatedAt"
-        :color="getColor(i)"
-      />
+      <p>
+        Use o menu lateral para navegar ou vá direto para uma das opções abaixo!
+      </p>
+
+      <v-container>
+        <v-btn
+          color="primary"
+          size="large"
+          class="mr-4 mt-4"
+          prepend-icon="mdi-list-box"
+          to="/tests"
+          >Ver provas</v-btn
+        >
+        <v-btn
+          color="secondary"
+          size="large"
+          class="mr-4 mt-4"
+          prepend-icon="mdi-new-box"
+          to="/new"
+          >Nova prova</v-btn
+        >
+      </v-container>
     </div>
+
     <div v-else>
-      <h1 class="mb-4">
-        Parece que você não tem nenhuma prova ainda... Crie uma agora!
-      </h1>
-      <v-btn color="success" to="/new">Criar prova</v-btn>
+      Faça login pra acessar a aplicação!
+      <v-btn color="success">Logar</v-btn>
     </div>
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import { storeToRefs } from 'pinia'
-import TestCard from "@/components/TestCard.vue";
-import { useTestsStore } from "@/stores/useTests";
+import { useAuthStore } from "@/stores/useAuth";
 
-const store = useTestsStore();
-const { tests } = storeToRefs(store);
+const store = useAuthStore();
 
-function getColor(index: number): string {
-  const colors = [
-    'orange',
-    'blue',
-    'red',
-    'green',
-    'yellow'
-  ]
+const currentHour = new Date().getHours();
+let messageGreeting = "";
 
-  return colors[index % colors.length]
-  }
+if (currentHour > 18) {
+  messageGreeting = "Boa noite";
+} else if (currentHour > 12) {
+  messageGreeting = "Boa tarde";
+} else {
+  messageGreeting = "Bom dia";
+}
+
+messageGreeting = `${messageGreeting} ${store.authenticatedUserName}! Seja bem vindo!`;
 </script>

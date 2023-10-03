@@ -11,7 +11,6 @@ const routes = [
         path: "",
         name: "home",
         component: () => import("@/views/Home.vue"),
-        meta: { requiresAuth: true },
       },
       {
         path: "login",
@@ -25,9 +24,15 @@ const routes = [
         meta: { requiresAuth: true },
       },
       {
+        path: "tests",
+        name: "tests",
+        component: () => import("@/views/Tests.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
         path: "test/:id",
-        name: "test",
-        component: () => import("@/views/Test.vue"),
+        name: "update",
+        component: () => import("@/views/Update.vue"),
         meta: { requiresAuth: true },
       },
       {

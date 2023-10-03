@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+
 import { Database } from "@/services/firebase";
 import { validateName } from "@/libs/validation";
 import Editor from "@/components/Editor.vue";
@@ -51,8 +51,6 @@ const editorData = ref("");
 const showError = ref(false);
 const loading = ref(false);
 const form = ref(false);
-
-const router = useRouter();
 
 async function handleSubmit() {
   loading.value = true;
