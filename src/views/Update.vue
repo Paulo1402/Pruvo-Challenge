@@ -2,7 +2,7 @@
   <v-container class="text-center">
     <h1 class="mb-4">Atualizar Prova</h1>
 
-    <v-card class="mx-auto px-6 py-8" max-width="800">
+    <v-card class="mx-auto px-6 py-8" max-width="1000">
       <v-alert
         v-model="showError"
         closable
@@ -19,11 +19,7 @@
           :rules="[validateName]"
         ></v-text-field>
 
-        <Editor
-          v-model="test.content"
-          :api-key="apiKey"
-          @init="handleEditorInit"
-        />
+        <Editor v-model="test.content" />
 
         <v-card-actions class="mt-4">
           <v-spacer></v-spacer>
@@ -37,7 +33,11 @@
             >Salvar</v-btn
           >
 
-          <DeleteButton :test-id="testId" />
+          <DeleteButton
+            @click="showError = false"
+            @error="showError = true"
+            :test-id="testId"
+          />
           <v-spacer></v-spacer>
         </v-card-actions>
 
@@ -53,23 +53,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute } from "vue-router";
-import Editor from "@tinymce/tinymce-vue";
 
 import { validateName } from "@/libs/validation";
 import { Database } from "@/services/firebase";
 import { useTestsStore } from "@/stores/useTests";
 import { Test } from "@/models/test";
-import DeleteButton from "@/components/DeleteButton.vue";
 
-type EditorMap = {
-  editorCommands: {
-    commands: {
-      exec: {
-        mceinsertcontent(_: any, __: any, content: string): void;
-      };
-    };
-  };
-};
+import Editor from "@/components/Editor.vue";
+import DeleteButton from "@/components/DeleteButton.vue";
 
 const route = useRoute();
 const testId = route.params.id as string;
@@ -84,13 +75,6 @@ store.$subscribe(() => {
 const showError = ref(false);
 const loading = ref(false);
 const form = ref(false);
-const editorRef = ref<EditorMap>();
-
-const apiKey = import.meta.env.VITE_TINY_API_KEY;
-
-function handleEditorInit(_: any, editor: EditorMap) {
-  editorRef.value = editor;
-}
 
 async function handleSubmit() {
   loading.value = true;
@@ -105,19 +89,4 @@ async function handleSubmit() {
 
   loading.value = false;
 }
-
-function insertText(text: string) {
-  editorRef.value?.editorCommands.commands.exec.mceinsertcontent(
-    "",
-    false,
-    text
-  );
-}
 </script>
-
-<style scoped>
-.editor-container {
-  max-width: 800px;
-  width: 100%;
-}
-</style>

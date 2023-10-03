@@ -2,7 +2,7 @@
   <v-container class="text-center">
     <h1 class="mb-4">Nova Prova</h1>
 
-    <v-card class="mx-auto px-6 py-8" max-width="800">
+    <v-card class="mx-auto px-6 py-8" max-width="1000">
       <v-alert
         v-model="showError"
         closable
@@ -19,11 +19,7 @@
           :rules="[validateName]"
         ></v-text-field>
 
-        <Editor
-          v-model="editorData"
-          :api-key="apiKey"
-          @init="handleEditorInit"
-        />
+        <Editor v-model="editorData"/>
 
         <v-card-actions class="mt-4">
           <v-spacer></v-spacer>
@@ -45,36 +41,18 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import Editor from "@tinymce/tinymce-vue";
 import { Database } from "@/services/firebase";
+import { validateName } from "@/libs/validation";
+import Editor from "@/components/Editor.vue";
 
-type EditorMap = {
-  editorCommands: {
-    commands: {
-      exec: {
-        mceinsertcontent(_: any, __: any, content: string): void;
-      };
-    };
-  };
-};
+const testName = ref("");
+const editorData = ref("");
 
 const showError = ref(false);
 const loading = ref(false);
 const form = ref(false);
-const testName = ref("");
-const editorData = ref("");
-const editorRef = ref<EditorMap>();
 
 const router = useRouter();
-const apiKey = import.meta.env.VITE_TINY_API_KEY;
-
-function validateName(name: string) {
-  return !!name || "Insira um nome.";
-}
-
-function handleEditorInit(_: any, editor: EditorMap) {
-  editorRef.value = editor;
-}
 
 async function handleSubmit() {
   loading.value = true;
@@ -89,19 +67,4 @@ async function handleSubmit() {
 
   loading.value = false;
 }
-
-function insertText(text: string) {
-  editorRef.value?.editorCommands.commands.exec.mceinsertcontent(
-    "",
-    false,
-    text
-  );
-}
 </script>
-
-<style scoped>
-.editor-container {
-  max-width: 800px;
-  width: 100%;
-}
-</style>
