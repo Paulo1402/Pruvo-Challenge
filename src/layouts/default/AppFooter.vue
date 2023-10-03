@@ -1,6 +1,6 @@
 <template>
-  <v-footer app class="d-flex flex-row py-4 m-auto justify-center">
-    <div>Feito com ❤️ by Paulo Benatto - {{ new Date().getFullYear() }}</div>
+  <v-footer app class="flex-sm-row d-flex flex-column py-4 m-auto justify-center">
+    <div class="text-center">Feito com ❤️ by Paulo Benatto - {{ new Date().getFullYear() }}</div>
 
     <div class="ml-6">
       <v-btn

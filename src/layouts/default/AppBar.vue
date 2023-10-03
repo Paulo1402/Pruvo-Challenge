@@ -1,17 +1,26 @@
 <template>
-  <v-navigation-drawer v-if="isAuthenticated" v-model="isDrawerOpen">
+  <v-navigation-drawer
+    v-if="store.isAuthenticated"
+    v-model="drawer"
+    disable-route-watcher
+  >
     <v-list>
       <v-list-subheader>Menu</v-list-subheader>
-      <v-list-item prepend-icon="mdi-home" to="/">Home</v-list-item>
-      <v-list-item prepend-icon="mdi-list-box" to="/">Provas</v-list-item>
-      <v-list-item prepend-icon="mdi-new-box" to="/new">Nova Prova</v-list-item>
+
+      <v-list-item exact nav prepend-icon="mdi-home" to="/">Home</v-list-item>
+      <v-list-item exact nav prepend-icon="mdi-list-box" to="/tests"
+        >Ver Provas</v-list-item
+      >
+      <v-list-item exact nav prepend-icon="mdi-new-box" to="/new"
+        >Nova Prova</v-list-item
+      >
     </v-list>
   </v-navigation-drawer>
 
   <v-app-bar>
     <v-app-bar-nav-icon
-      v-if="isAuthenticated"
-      @click="isDrawerOpen = !isDrawerOpen"
+      v-if="store.isAuthenticated"
+      @click="drawer = !drawer"
     ></v-app-bar-nav-icon>
 
     <v-app-bar-title>
@@ -19,25 +28,32 @@
     </v-app-bar-title>
 
     <v-btn class="mr-2" prepend-icon="mdi-circle-slice-4" @click="toggleTheme">
-      Mudar tema
+      <template #default>
+        <div class="d-none d-sm-flex">Mudar Tema</div>
+      </template>
     </v-btn>
 
-    <v-btn v-if="isAuthenticated" color="red" variant="tonal" class="relative">
+    <v-btn
+      v-if="store.isAuthenticated"
+      color="red"
+      variant="tonal"
+      class="relative"
+    >
       Sair
-      <v-dialog v-model="isDialogOpen" activator="parent" width="auto">
+      <v-dialog v-model="dialog" activator="parent" width="auto">
         <v-card title="ATENÇÃO">
           <v-card-text>Deseja sair dessa sessão?</v-card-text>
 
           <v-card-actions>
             <v-spacer />
             <v-btn
-              :disabled="isSignOutLoading"
-              :loading="isSignOutLoading"
+              :disabled="loading"
+              :loading="loading"
               color="red"
               @click="signOut"
               >Sim</v-btn
             >
-            <v-btn color="primary" @click="isDialogOpen = false">Não</v-btn>
+            <v-btn color="primary" @click="dialog = false">Não</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -48,33 +64,34 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { useTheme } from "vuetify";
+import { useRouter } from "vue-router";
 
 import { Auth } from "@/services/firebase";
-import router from "@/router";
+import { useAuthStore } from "@/stores/useAuth";
 
-const isSignOutLoading = ref(false);
-const isDialogOpen = ref(false);
-const isDrawerOpen = ref(false);
-const isAuthenticated = ref(true);
+const loading = ref(false);
+const dialog = ref(false);
+const drawer = ref(false);
 
+const router = useRouter();
 const theme = useTheme();
+const store = useAuthStore();
 
 function toggleTheme() {
   theme.global.name.value = theme.global.current.value.dark ? "light" : "dark";
 }
 
 async function signOut() {
-  isSignOutLoading.value = true;
+  loading.value = true;
 
   try {
     await Auth.signOut();
+    router.push("/login");
   } catch (e) {
     console.error(e);
   }
 
-  isSignOutLoading.value = false;
-  isDialogOpen.value = false;
-
-  router.push("/login");
+  loading.value = false;
+  dialog.value = false;
 }
 </script>
