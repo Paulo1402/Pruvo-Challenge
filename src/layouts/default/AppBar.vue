@@ -9,7 +9,8 @@
   </v-navigation-drawer>
 
   <v-app-bar>
-    <v-app-bar-nav-icon v-if="isAuthenticated"
+    <v-app-bar-nav-icon
+      v-if="isAuthenticated"
       @click="isDrawerOpen = !isDrawerOpen"
     ></v-app-bar-nav-icon>
 
@@ -21,7 +22,7 @@
       Mudar tema
     </v-btn>
 
-    <v-btn v-if="isAuthenticated" color="red" variant="tonal">
+    <v-btn v-if="isAuthenticated" color="red" variant="tonal" class="relative">
       Sair
       <v-dialog v-model="isDialogOpen" activator="parent" width="auto">
         <v-card title="ATENÇÃO">
@@ -29,7 +30,13 @@
 
           <v-card-actions>
             <v-spacer />
-            <v-btn :disabled="isSignOutLoading" :loading="isSignOutLoading" color="red" @click="signOut">Sim</v-btn>
+            <v-btn
+              :disabled="isSignOutLoading"
+              :loading="isSignOutLoading"
+              color="red"
+              @click="signOut"
+              >Sim</v-btn
+            >
             <v-btn color="primary" @click="isDialogOpen = false">Não</v-btn>
           </v-card-actions>
         </v-card>
@@ -39,13 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref} from "vue";
+import { ref } from "vue";
 import { useTheme } from "vuetify";
 
 import { Auth } from "@/services/firebase";
 import router from "@/router";
 
-const isSignOutLoading = ref(false)
+const isSignOutLoading = ref(false);
 const isDialogOpen = ref(false);
 const isDrawerOpen = ref(false);
 const isAuthenticated = ref(true);
@@ -57,13 +64,17 @@ function toggleTheme() {
 }
 
 async function signOut() {
-  isSignOutLoading.value = true
+  isSignOutLoading.value = true;
 
-  await Auth.signOut();
+  try {
+    await Auth.signOut();
+  } catch (e) {
+    console.error(e);
+  }
 
-  isSignOutLoading.value = false
-  isDialogOpen.value = false
+  isSignOutLoading.value = false;
+  isDialogOpen.value = false;
 
-  router.push('/login')
+  router.push("/login");
 }
 </script>
