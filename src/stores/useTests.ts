@@ -10,8 +10,9 @@ export const useTestsStore = defineStore('tests', () => {
     tests.value = newTests
   }
 
-  function getTest(id: string): Test | undefined {
-    return tests.value.find(test => test.id === id)
+  function getTest(id: string): Test {
+    const test = tests.value.find(test => test.id === id) as Test
+    return {...test}
   }
 
   return { tests, update, getTest }
