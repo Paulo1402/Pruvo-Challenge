@@ -3,22 +3,20 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
+import { onBeforeMount} from "vue";
 import { useTestsStore } from "@/stores/useTests";
 import { Auth, Database } from "./services/firebase";
 
 const store = useTestsStore();
 
-onMounted(async () => {
+onBeforeMount(async () => {
   const isAuthenticated = await Auth.isAuthenticated()
+  console.log('isAuthenticated: ' + isAuthenticated )
 
   if (isAuthenticated) {
-    // const tests = await Database.getTests();
-    // store.update(tests);
-
     // Ao adicionar o listener automaticamente ele já responde e chama a função de callback,
     // ou seja não é necessário retornar os dados manualmente usando Database.getTests()
-    Database.listenToTestsDoc(store.update)
+    await Database.listenToTestsDoc(store.update)
   }
 });
 </script>

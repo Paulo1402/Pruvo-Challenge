@@ -8,4 +8,8 @@ function validateEmail(email: string) {
   return pattern.test(email) || "E-mail inválido.";
 }
 
-export { validatePassword, validateEmail };
+function validateName(name: string) {
+  return !!name || "Insira um nome.";
+}
+
+export { validatePassword, validateEmail, validateName };

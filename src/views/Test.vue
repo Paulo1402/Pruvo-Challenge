@@ -1,39 +1,52 @@
 <template>
-  <v-container class="text-center d-flex justify-center">
-    <v-form v-model="form" class="editor-container">
-      <div class="editor-container">
-        <h1 class="mb-8">Atualizar Prova</h1>
+  <v-container class="text-center">
+    <h1 class="mb-4">Atualizar Prova</h1>
 
+    <v-card class="mx-auto px-6 py-8" max-width="800">
+      <v-alert
+        v-model="showError"
+        closable
+        type="error"
+        text="Algo deu errado durante a interação!"
+      >
+      </v-alert>
+
+      <v-form v-model="form">
         <v-text-field
-          v-model="testName"
+          v-model="test.name"
           label="Nome da prova"
           class="text-start mb-4"
           :rules="[validateName]"
         ></v-text-field>
 
         <Editor
-          class="editor-container"
-          v-model="editorData"
+          v-model="test.content"
           :api-key="apiKey"
           @init="handleEditorInit"
         />
 
-        <v-btn
-          :loading="loading"
-          :disabled="!form || !!!editorData || loading"
-          class="mt-4 mr-4"
-          size="large"
-          color="blue"
-          @click="handleSubmit"
-          >Salvar</v-btn
-        >
+        <v-card-actions class="mt-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            :loading="loading"
+            :disabled="!form || !!!test.content || loading"
+            variant="tonal"
+            class="mr-4"
+            color="blue"
+            @click="handleSubmit"
+            >Salvar</v-btn
+          >
 
-        <DeleteButton :test-id="testId"/>
+          <DeleteButton :test-id="testId" />
+          <v-spacer></v-spacer>
+        </v-card-actions>
 
-        <p>Criado em {{ test?.createdAt }}</p>
-        <p>Atualizado em {{ test?.updatedAt }}</p>
-      </div>
-    </v-form>
+        <v-card-text class="pb-0">
+          <p>Criado em {{ test.createdAt }}</p>
+          <p>Atualizado em {{ test.updatedAt }}</p>
+        </v-card-text>
+      </v-form>
+    </v-card>
   </v-container>
 </template>
 
@@ -41,8 +54,11 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import Editor from "@tinymce/tinymce-vue";
+
+import { validateName } from "@/libs/validation";
 import { Database } from "@/services/firebase";
 import { useTestsStore } from "@/stores/useTests";
+import { Test } from "@/models/test";
 import DeleteButton from "@/components/DeleteButton.vue";
 
 type EditorMap = {
@@ -59,19 +75,18 @@ const route = useRoute();
 const testId = route.params.id as string;
 
 const store = useTestsStore();
-const test = store.getTest(testId);
+const test = ref<Test>(store.getTest(testId) as Test);
 
+store.$subscribe(() => {
+  test.value = store.getTest(testId) as Test;
+});
+
+const showError = ref(false);
 const loading = ref(false);
 const form = ref(false);
-const testName = ref(test?.name);
-const editorData = ref(test?.content);
 const editorRef = ref<EditorMap>();
 
 const apiKey = import.meta.env.VITE_TINY_API_KEY;
-
-function validateName(name: string) {
-  return !!name || "Insira um nome.";
-}
 
 function handleEditorInit(_: any, editor: EditorMap) {
   editorRef.value = editor;
@@ -79,14 +94,12 @@ function handleEditorInit(_: any, editor: EditorMap) {
 
 async function handleSubmit() {
   loading.value = true;
+  showError.value = false;
 
   try {
-    await Database.updateTest(
-      testId,
-      testName.value as string,
-      editorData.value as string
-    );
+    await Database.updateTest(testId, test.value.name, test.value.content);
   } catch (error) {
+    showError.value = true;
     console.error(error);
   }
 
