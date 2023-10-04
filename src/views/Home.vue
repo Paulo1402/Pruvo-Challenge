@@ -41,19 +41,23 @@
 
 <script lang="ts" setup>
 import { useAuthStore } from "@/stores/useAuth";
+import { ref } from "vue";
 
+const messageGreeting = ref("");
 const store = useAuthStore();
 
-const currentHour = new Date().getHours();
-let messageGreeting = "";
+store.$subscribe(() => {
+  const currentHour = new Date().getHours();
+  let greeting = "";
 
-if (currentHour > 18) {
-  messageGreeting = "Boa noite";
-} else if (currentHour > 12) {
-  messageGreeting = "Boa tarde";
-} else {
-  messageGreeting = "Bom dia";
-}
+  if (currentHour > 18) {
+    greeting = "Boa noite";
+  } else if (currentHour > 12) {
+    greeting = "Boa tarde";
+  } else {
+    greeting = "Bom dia";
+  }
 
-messageGreeting = `${messageGreeting} ${store.authenticatedUserName}! Seja bem vindo!`;
+  messageGreeting.value = `${greeting} ${store.authenticatedUserName}! Seja bem vindo!`;
+});
 </script>
