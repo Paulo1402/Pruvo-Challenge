@@ -1,13 +1,13 @@
 <template>
   <v-btn variant="tonal" color="red">
-    <v-dialog v-model="isDialogOpen" activator="parent" width="auto">
+    <v-dialog v-model="dialog" activator="parent" width="auto">
       <v-card title="ATENÇÃO">
         <v-card-text>Deseja deletar essa prova?</v-card-text>
 
         <v-card-actions>
           <v-spacer />
           <v-btn color="red" @click="handleDelete">Sim</v-btn>
-          <v-btn color="primary" @click="isDialogOpen = false">Não</v-btn>
+          <v-btn color="primary" @click="dialog = false">Não</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -16,22 +16,27 @@
 </template>
 
 <script setup lang="ts">
-import { Database } from "@/services/firebase";
 import { ref } from "vue";
+import { useRouter } from 'vue-router'
 
-const emit = defineEmits(["error"]);
+import { Database } from "@/services/firebase";
 
 const props = defineProps<{ testId: string }>();
-const isDialogOpen = ref(false);
+const emit = defineEmits(["error"]);
+
+const dialog = ref(false);
+
+const router = useRouter()
 
 async function handleDelete() {
   try {
     await Database.deleteTest(props.testId);
+    await router.push('/tests')
   } catch (error) {
     emit("error");
     console.error(error);
   }
 
-  isDialogOpen.value = false;
+  dialog.value = false;
 }
 </script>

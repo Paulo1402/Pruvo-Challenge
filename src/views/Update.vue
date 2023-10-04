@@ -2,7 +2,7 @@
   <v-container class="text-center">
     <h1 class="mb-4">Atualizar Prova</h1>
 
-    <v-card class="mx-auto px-6 py-8" max-width="1000">
+    <v-card class="mx-auto px-6 py-8" max-width="1200">
       <v-alert
         v-model="showError"
         closable

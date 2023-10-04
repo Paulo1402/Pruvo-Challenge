@@ -25,6 +25,7 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
+
 import TestCard from "@/components/TestCard.vue";
 import { useTestsStore } from "@/stores/useTests";
 
@@ -33,7 +34,6 @@ const { tests } = storeToRefs(store);
 
 function getColor(index: number): string {
   const colors = ["orange", "blue", "red", "green", "yellow"];
-
   return colors[index % colors.length];
 }
 </script>

@@ -2,7 +2,7 @@
   <v-container class="text-center">
     <h1 class="mb-4">Nova Prova</h1>
 
-    <v-card class="mx-auto px-6 py-8" max-width="1000">
+    <v-card class="mx-auto px-6 py-8" max-width="1200">
       <v-alert
         v-model="showError"
         closable
@@ -19,7 +19,7 @@
           :rules="[validateName]"
         ></v-text-field>
 
-        <Editor v-model="editorData"/>
+        <Editor v-model="editorData" />
 
         <v-card-actions class="mt-4">
           <v-spacer></v-spacer>
@@ -40,10 +40,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 import { Database } from "@/services/firebase";
 import { validateName } from "@/libs/validation";
 import Editor from "@/components/Editor.vue";
+
+const router = useRouter();
 
 const testName = ref("");
 const editorData = ref("");
@@ -57,7 +60,8 @@ async function handleSubmit() {
   showError.value = false;
 
   try {
-    await Database.addTest(testName.value, editorData.value);
+    const id = await Database.addTest(testName.value, editorData.value);
+    router.push(`test/${id}`);
   } catch {
     showError.value = true;
     console.log("Erro");
