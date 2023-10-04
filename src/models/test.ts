@@ -16,10 +16,13 @@ class Test implements ITest{
   createdAt: string;
   updatedAt: string;
 
+  updatedAtInDate: Date
+
   constructor(id: string, data: DocumentData) {
     this.id = id
     this.name = data.name
     this.content = data.content
+    this.updatedAtInDate = new Date(data.updatedAt.toDate())
 
     const createdAt = dayjs(data.createdAt.toDate())
     const updatedAt = dayjs(data.updatedAt.toDate())

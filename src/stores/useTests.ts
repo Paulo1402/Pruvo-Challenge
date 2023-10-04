@@ -6,6 +6,7 @@ export const useTestsStore = defineStore("tests", () => {
   const tests = ref<Test[]>([]);
 
   function update(newTests: Test[]): void {
+    newTests.sort((a, b) => Number(b.updatedAtInDate) - Number(a.updatedAtInDate));
     tests.value = newTests;
   }
 
