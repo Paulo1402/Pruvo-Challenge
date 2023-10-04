@@ -26,13 +26,16 @@
         </v-btn>
       </v-container>
 
-      <v-tooltip location="bottom">
+      <v-tooltip location="bottom" v-model="help">
         <template v-slot:activator="{ props }">
-          <v-btn variant="elevated" icon v-bind="props">
+          <v-btn variant="elevated" icon v-bind="props" @click="help = !help">
             <v-icon color="primary"> mdi-help </v-icon>
           </v-btn>
         </template>
-        <span>Posicione o cursor no editor e clique em um dos modelos de questões! :)</span>
+        <span
+          >Posicione o cursor no editor e clique em um dos modelos de questões!
+          :)</span
+        >
       </v-tooltip>
     </v-col>
   </v-row>
@@ -51,6 +54,7 @@ const apiKey = import.meta.env.VITE_TINY_API_KEY;
 
 const localContent = ref(props.modelValue);
 const editorRef = ref<EditorMap>();
+const help = ref(false);
 
 // Esse watch alerta a prop vinda do v-model do componente pai sobre qualquer alteração na ref localContent
 watch(localContent, (newValue) => {
@@ -58,13 +62,8 @@ watch(localContent, (newValue) => {
 });
 
 type EditorMap = {
-  editorCommands: {
-    commands: {
-      exec: {
-        mceinsertcontent(_: any, __: any, content: string): void;
-      };
-    };
-  };
+  insertContent: (text: string) => void;
+  getContent: () => string;
 };
 
 function handleEditorInit(_: any, editor: EditorMap) {
@@ -72,10 +71,9 @@ function handleEditorInit(_: any, editor: EditorMap) {
 }
 
 function insertText(text: string) {
-  editorRef.value?.editorCommands.commands.exec.mceinsertcontent(
-    "",
-    false,
-    text
-  );
+  editorRef.value?.insertContent(text);
+
+  // Ao inserir texto usando a api do editor, o v-model não atualiza automaticamente, portanto é necessário atualizar manualmente
+  localContent.value = editorRef.value?.getContent() || "";
 }
 </script>
