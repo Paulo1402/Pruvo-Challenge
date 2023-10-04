@@ -1,6 +1,4 @@
 /* eslint-disable no-async-promise-executor */
-import { Test } from "@/models/test";
-import { initializeApp } from "firebase/app";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -23,20 +21,24 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+import { app } from "./firebaseConfig";
+import { Test } from "@/models/test";
 
-const app = initializeApp(firebaseConfig);
+interface AuthStore {
+  isAuthenticated: boolean;
+  loggin: (userName: string) => void;
+  signOut: () => void;
+}
+
+interface TestsStore {
+  update: (tests: Test[]) => void;
+}
 
 class Auth {
-  private static async updateUserName(user: User, userName: string) {
-    await updateProfile(user, { displayName: userName });
+  private static authStore: AuthStore;
+
+  static setup(authStore: AuthStore): void {
+    this.authStore = authStore;
   }
 
   static async signUp(
@@ -55,9 +57,15 @@ class Auth {
     await this.updateUserName(userCredential.user, name);
   }
 
+  private static async updateUserName(user: User, userName: string) {
+    await updateProfile(user, { displayName: userName });
+  }
+
   static async signOut(): Promise<void> {
     const auth = getAuth(app);
     await signOut(auth);
+
+    this.authStore.signOut();
   }
 
   static async login(email: string, password: string): Promise<void> {
@@ -67,6 +75,13 @@ class Auth {
 
   static async isAuthenticated(): Promise<boolean> {
     const user = await this.getCurrentUser();
+
+    // Refatorar
+    if (!this.authStore.isAuthenticated && user) {
+      this.setLoginState(user.displayName as string);
+      this.setDatabaseListener();
+    }
+
     return !!user;
   }
 
@@ -81,9 +96,23 @@ class Auth {
 
     return user;
   }
+
+  private static setLoginState(userName: string) {
+    this.authStore.loggin(userName);
+  }
+
+  private static setDatabaseListener() {
+    Database.listenToTestsDoc();
+  }
 }
 
 class Database {
+  private static testsStore: TestsStore;
+
+  static setup(testsStore: TestsStore): void {
+    this.testsStore = testsStore;
+  }
+
   static async getTests(): Promise<Test[]> {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
@@ -109,7 +138,7 @@ class Database {
     });
   }
 
-  static async addTest(name: string, content: string): Promise<void> {
+  static async addTest(name: string, content: string): Promise<string> {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
 
@@ -117,12 +146,14 @@ class Database {
       const userId = user.uid;
       const testsCollection = collection(db, `users/${userId}/tests`);
 
-      await addDoc(testsCollection, {
+      const test = await addDoc(testsCollection, {
         name,
         content,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+
+      return test.id;
     } else {
       throw new Error("User is not authenticated.");
     }
@@ -168,7 +199,7 @@ class Database {
     }
   }
 
-  static async listenToTestsDoc(callback: (tests: Test[]) => void) {
+  static async listenToTestsDoc() {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
 
@@ -184,7 +215,7 @@ class Database {
           tests.push(test);
         });
 
-        callback(tests);
+        this.testsStore.update(tests);
       });
 
       return unsubscribeTests;
