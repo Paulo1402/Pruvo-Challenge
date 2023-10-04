@@ -12,4 +12,6 @@ const testsStore = useTestsStore();
 
 Auth.setup(authStore);
 Database.setup(testsStore);
+
+Auth.authenticate()
 </script>

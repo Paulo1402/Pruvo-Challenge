@@ -7,6 +7,7 @@ import {
   updateProfile,
   User,
   onAuthStateChanged,
+  Unsubscribe,
 } from "firebase/auth";
 import {
   getFirestore,
@@ -55,34 +56,35 @@ class Auth {
     );
 
     await this.updateUserName(userCredential.user, name);
+    await this.authenticate();
   }
 
   private static async updateUserName(user: User, userName: string) {
     await updateProfile(user, { displayName: userName });
   }
 
+  static async login(email: string, password: string): Promise<void> {
+    const auth = getAuth(app);
+    await signInWithEmailAndPassword(auth, email, password);
+
+    await this.authenticate();
+  }
+
   static async signOut(): Promise<void> {
     const auth = getAuth(app);
     await signOut(auth);
 
+    Database.unsubscribeTestsListener();
     this.authStore.signOut();
   }
 
-  static async login(email: string, password: string): Promise<void> {
-    const auth = getAuth(app);
-    await signInWithEmailAndPassword(auth, email, password);
-  }
-
-  static async isAuthenticated(): Promise<boolean> {
+  static async authenticate() {
     const user = await this.getCurrentUser();
 
-    // Refatorar
-    if (!this.authStore.isAuthenticated && user) {
-      this.setLoginState(user.displayName as string);
-      this.setDatabaseListener();
+    if (user) {
+      this.authStore.loggin(user.displayName || "Usuário");
+      Database.listenToTests();
     }
-
-    return !!user;
   }
 
   static async getCurrentUser(): Promise<User | null> {
@@ -97,16 +99,14 @@ class Auth {
     return user;
   }
 
-  private static setLoginState(userName: string) {
-    this.authStore.loggin(userName);
-  }
-
-  private static setDatabaseListener() {
-    Database.listenToTestsDoc();
+  static async isAuthenticated(): Promise<boolean> {
+    const user = await this.getCurrentUser();
+    return !!user;
   }
 }
 class Database {
   private static testsStore: TestsStore;
+  private static unsubscribeTests: Unsubscribe | null;
 
   static setup(testsStore: TestsStore): void {
     this.testsStore = testsStore;
@@ -198,7 +198,7 @@ class Database {
     }
   }
 
-  static async listenToTestsDoc() {
+  static async listenToTests() {
     const db = getFirestore(app);
     const user = await Auth.getCurrentUser();
 
@@ -217,9 +217,16 @@ class Database {
         this.testsStore.update(tests);
       });
 
-      return unsubscribeTests;
+      this.unsubscribeTests = unsubscribeTests;
     } else {
       throw new Error("User is not authenticated.");
+    }
+  }
+
+  static async unsubscribeTestsListener() {
+    if (this.unsubscribeTests) {
+      this.unsubscribeTests();
+      this.unsubscribeTests = null;
     }
   }
 }
