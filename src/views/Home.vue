@@ -2,7 +2,7 @@
   <v-container class="text-center">
     <div class="d-flex flex-row justify-center align-center mb-8">
       <h1 class="mr-4">Pruvo Challenge</h1>
-      <img src="pruvo-logo.png" height="50" />
+      <img src="/pruvo-logo.png" height="50" />
     </div>
 
     <div v-if="store.isAuthenticated">
