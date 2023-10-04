@@ -49,6 +49,7 @@ Qualquer outra rota acessada é redirecionada para uma página de erro personali
         - createdAt: timestamp
         - updatedAt: timestamp
 
+---
 
 ### Gerenciamento de estado
 
