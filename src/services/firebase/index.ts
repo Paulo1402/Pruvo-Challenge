@@ -105,7 +105,6 @@ class Auth {
     Database.listenToTestsDoc();
   }
 }
-
 class Database {
   private static testsStore: TestsStore;
 

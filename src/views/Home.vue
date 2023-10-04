@@ -1,7 +1,11 @@
 <template>
   <v-container class="text-center">
+    <div class="d-flex flex-row justify-center align-center mb-8">
+      <h1 class="mr-4">Pruvo Challenge</h1>
+      <img src="pruvo-logo.png" height="50" />
+    </div>
+
     <div v-if="store.isAuthenticated">
-      <h1 class="mb-8">Pruvo Challenge</h1>
       <h2>{{ messageGreeting }}</h2>
 
       <p>
@@ -29,8 +33,8 @@
     </div>
 
     <div v-else>
-      Faça login pra acessar a aplicação!
-      <v-btn color="success">Logar</v-btn>
+      <h2 class="mb-4">Faça login pra acessar a aplicação!</h2>
+      <v-btn color="success" to="/login">Entrar</v-btn>
     </div>
   </v-container>
 </template>
